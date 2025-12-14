@@ -1,0 +1,795 @@
+<html lang="en" class="scroll-smooth"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nikko Paulo Yu | Data &amp; Lead Gen Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#0a0a0a',
+                        surface: '#111111',
+                        primary: '#FF6B35',
+                        border: 'rgba(255,255,255,0.08)'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'scroll-left': 'scroll-left 40s linear infinite',
+                        'spin-slow': 'spin 8s linear infinite',
+                    },
+                    keyframes: {
+                        'scroll-left': {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Animation Keyframes (Snippet Adapted) */
+        @keyframes animationIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+                filter: blur(8px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0px);
+            }
+        }
+
+        /* Base Settings */
+        body {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Main container handles scroll */
+        }
+
+        /* Scroll Snap Container */
+        .snap-container {
+            scroll-snap-type: y mandatory;
+            height: 100vh;
+            overflow-y: scroll;
+            scrollbar-width: none; /* Firefox */
+            position: relative;
+        }
+        .snap-container::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+        .snap-section {
+            scroll-snap-align: start;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 1rem;
+        }
+
+        /* Card Wrapper - Desktop 3:4 aspect ratio, Mobile full */
+        .card-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (min-width: 768px) {
+            .card-wrapper {
+                height: 85vh;
+                width: auto;
+                aspect-ratio: 3/4;
+                border-radius: 1.5rem;
+                max-width: 1200px;
+            }
+        }
+
+        /* Flashlight Effect */
+        .flashlight-bg {
+            background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 107, 53, 0.06), transparent 40%);
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .card-wrapper::before {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: radial-gradient(400px circle at var(--mouse-x-rel) var(--mouse-y-rel), rgba(255, 255, 255, 0.15), transparent 60%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Custom UI Elements */
+        .list-check li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.5;
+        }
+        
+        /* Card Stack Rotator */
+        .card-stack { perspective: 1000px; position: relative; }
+        .stack-item {
+            position: absolute;
+            transition: all 0.6s cubic-bezier(0.33, 1, 0.68, 1);
+            transform-style: preserve-3d;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            background: #111;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .stack-item.active { transform: translateZ(0) scale(1); opacity: 1; z-index: 10; border-color: rgba(255,255,255,0.2); }
+        .stack-item.next { transform: translateZ(-40px) translateY(12px) scale(0.96); opacity: 0.6; z-index: 5; }
+        .stack-item.prev { transform: translateZ(-80px) translateY(24px) scale(0.92); opacity: 0.3; z-index: 0; }
+
+        /* Beam Button */
+        .btn-beam { position: relative; overflow: hidden; }
+        .beam-border {
+            position: absolute; inset: -1px; border-radius: inherit;
+            background: conic-gradient(from 0deg, transparent 0deg, transparent 90deg, #FF6B35 180deg, transparent 270deg);
+            animation: spin-slow 4s linear infinite; opacity: 0; transition: opacity 0.3s; pointer-events: none; mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; padding: 1px;
+        }
+        .btn-beam:hover .beam-border { opacity: 1; }
+
+        /* Lightbox */
+        #lightbox { transition: opacity 0.3s ease; }
+        #lightbox.open { display: flex; opacity: 1; }
+        
+        /* Background Grid */
+        .bg-grid {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+
+        /* Utility for delay classes */
+        .delay-100 { animation-delay: 0.1s !important; }
+        .delay-200 { animation-delay: 0.2s !important; }
+        .delay-300 { animation-delay: 0.3s !important; }
+        .delay-400 { animation-delay: 0.4s !important; }
+    </style>
+    
+    <!-- Animation on Scroll Script (Snippet Adapted) -->
+    <script>
+        (function () {
+            const style = document.createElement("style");
+            style.textContent = `
+                .animate-on-scroll { animation-play-state: paused !important; }
+                .animate-on-scroll.animate { animation-play-state: running !important; }
+            `;
+            document.head.appendChild(style);
+
+            const once = true;
+
+            if (!window.__inViewIO) {
+                window.__inViewIO = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("animate");
+                            if (once) window.__inViewIO.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.15, rootMargin: "0px 0px -10% 0px" });
+            }
+
+            window.initInViewAnimations = function (selector = ".animate-on-scroll") {
+                document.querySelectorAll(selector).forEach((el) => {
+                    window.__inViewIO.observe(el);
+                });
+            };
+
+            document.addEventListener("DOMContentLoaded", () => initInViewAnimations());
+        })();
+    </script>
+<link id="all-fonts-link-font-geist" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-geist">.font-geist { font-family: 'Geist', sans-serif !important; }</style><link id="all-fonts-link-font-roboto" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-roboto">.font-roboto { font-family: 'Roboto', sans-serif !important; }</style><link id="all-fonts-link-font-montserrat" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-montserrat">.font-montserrat { font-family: 'Montserrat', sans-serif !important; }</style><link id="all-fonts-link-font-poppins" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-poppins">.font-poppins { font-family: 'Poppins', sans-serif !important; }</style><link id="all-fonts-link-font-playfair" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;900&amp;display=swap"><style id="all-fonts-style-font-playfair">.font-playfair { font-family: 'Playfair Display', serif !important; }</style><link id="all-fonts-link-font-instrument-serif" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-instrument-serif">.font-instrument-serif { font-family: 'Instrument Serif', serif !important; }</style><link id="all-fonts-link-font-merriweather" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&amp;display=swap"><style id="all-fonts-style-font-merriweather">.font-merriweather { font-family: 'Merriweather', serif !important; }</style><link id="all-fonts-link-font-bricolage" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-bricolage">.font-bricolage { font-family: 'Bricolage Grotesque', sans-serif !important; }</style><link id="all-fonts-link-font-jakarta" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"><style id="all-fonts-style-font-jakarta">.font-jakarta { font-family: 'Plus Jakarta Sans', sans-serif !important; }</style><link id="all-fonts-link-font-manrope" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap"><style id="all-fonts-style-font-manrope">.font-manrope { font-family: 'Manrope', sans-serif !important; }</style><link id="all-fonts-link-font-space-grotesk" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-space-grotesk">.font-space-grotesk { font-family: 'Space Grotesk', sans-serif !important; }</style><link id="all-fonts-link-font-work-sans" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800&amp;display=swap"><style id="all-fonts-style-font-work-sans">.font-work-sans { font-family: 'Work Sans', sans-serif !important; }</style><link id="all-fonts-link-font-pt-serif" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&amp;display=swap"><style id="all-fonts-style-font-pt-serif">.font-pt-serif { font-family: 'PT Serif', serif !important; }</style><link id="all-fonts-link-font-geist-mono" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-geist-mono">.font-geist-mono { font-family: 'Geist Mono', monospace !important; }</style><link id="all-fonts-link-font-space-mono" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&amp;display=swap"><style id="all-fonts-style-font-space-mono">.font-space-mono { font-family: 'Space Mono', monospace !important; }</style><link id="all-fonts-link-font-quicksand" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-quicksand">.font-quicksand { font-family: 'Quicksand', sans-serif !important; }</style><link id="all-fonts-link-font-nunito" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&amp;display=swap"><style id="all-fonts-style-font-nunito">.font-nunito { font-family: 'Nunito', sans-serif !important; }</style></head>
+<body class="antialiased selection:bg-[#FF6B35] selection:text-white text-sm">
+
+    <!-- Global Background -->
+    <div class="fixed inset-0 z-0 pointer-events-none bg-background">
+        <div class="absolute inset-0 bg-grid opacity-50"></div>
+        <div class="flashlight-bg"></div>
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="fixed inset-0 z-[100] bg-black/90 hidden items-center justify-center p-4 backdrop-blur-md opacity-0 cursor-zoom-out" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="Preview" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl border border-white/10 animate-on-scroll delay-100 [animation:animationIn_0.4s_ease-out_0s_both]">
+    </div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 w-full z-50 px-6 py-5 flex items-center justify-between mix-blend-difference text-white pointer-events-none">
+        <div class="flex items-center gap-2 pointer-events-auto">
+            <div class="w-1.5 h-1.5 rounded-full bg-[#FF6B35]"></div>
+            <span class="text-xs font-semibold tracking-tight uppercase opacity-90">Nikko Paulo Yu</span>
+        </div>
+
+        <!-- Dots generated by JS now to ensure accurate count -->
+        <div class="hidden md:flex pointer-events-auto gap-x-1.5 gap-y-1.5" id="pagination-dots"><div class="w-1.5 h-1.5 rounded-full transition-all duration-300 bg-white scale-125"></div><div class="w-1.5 h-1.5 rounded-full transition-all duration-300 bg-white/20"></div><div class="w-1.5 h-1.5 rounded-full transition-all duration-300 bg-white/20"></div><div class="w-1.5 h-1.5 rounded-full transition-all duration-300 bg-white/20"></div><div class="w-1.5 h-1.5 rounded-full transition-all duration-300 bg-white/20"></div><div class="w-1.5 h-1.5 rounded-full transition-all duration-300 bg-white/20"></div><div class="w-1.5 h-1.5 rounded-full transition-all duration-300 bg-white/20"></div><div class="w-1.5 h-1.5 rounded-full transition-all duration-300 bg-white/20"></div><div class="w-1.5 h-1.5 rounded-full transition-all duration-300 bg-white/20"></div><div class="w-1.5 h-1.5 rounded-full transition-all duration-300 bg-white/20"></div><div class="w-1.5 h-1.5 rounded-full transition-all duration-300 bg-white/20"></div></div>
+
+        <div class="flex items-center gap-4 pointer-events-auto">
+            <a href="mailto:yunikkopaulo@gmail.com" class="text-[10px] font-medium text-white/60 hover:text-white transition-colors uppercase tracking-widest hidden sm:block">Available for work</a>
+            <div class="flex flex-col gap-1 text-white/50">
+                <button onclick="prevSlide()" class="hover:text-[#FF6B35] transition-colors"><iconify-icon icon="lucide:chevron-up" width="16"></iconify-icon></button>
+                <button onclick="nextSlide()" class="hover:text-[#FF6B35] transition-colors"><iconify-icon icon="lucide:chevron-down" width="16"></iconify-icon></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Scroll Container -->
+    <main class="snap-container relative z-10" id="main-container">
+
+        <!-- 1. Cover -->
+        <section class="snap-section" id="section-1">
+            <div class="card-wrapper p-8 md:p-16 justify-between" style="--mouse-x-rel: -232.875px; --mouse-y-rel: -46.5px;">
+                <div class="flex flex-col gap-6 mt-12 relative z-10">
+                    <div class="inline-flex gap-2 animate-on-scroll delay-100 [animation:animationIn_0.8s_ease-out_0s_both] bg-[#FF6B35]/5 w-fit border-[#FF6B35]/20 border rounded-full pt-1 pr-3 pb-1 pl-3 gap-x-2 gap-y-2 items-center">
+                        <span class="relative flex h-1.5 w-1.5">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF6B35] opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#FF6B35]"></span>
+                        </span>
+                        <span class="text-[10px] uppercase font-semibold text-[#FF6B35] tracking-wide">available for work</span>
+                    </div>
+                    
+                    <h1 class="text-4xl md:text-6xl font-semibold leading-[1.05] tracking-tight text-white animate-on-scroll delay-200 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        Data Entry &amp;<br>
+                        <span class="text-orange-500/40">Lead Generation.</span>
+                    </h1>
+                    
+                    <p class="leading-relaxed text-sm text-white/60 max-w-sm animate-on-scroll delay-300 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        Building accurate lead lists and maintaining clean databases so you can focus on closing deals.
+                    </p>
+                </div>
+
+                <div class="mt-auto animate-on-scroll delay-400 [animation:animationIn_0.8s_ease-out_0s_both]">
+                    <div class="flex items-center justify-between border-t border-white/5 pt-6">
+                        <div class="flex -space-x-2">
+                           <div class="w-8 h-8 rounded-full border border-black bg-white/5 flex items-center justify-center text-white/80"><iconify-icon icon="lucide:database" width="14"></iconify-icon></div>
+                           <div class="w-8 h-8 rounded-full border border-black bg-white/5 flex items-center justify-center text-white/80"><iconify-icon icon="lucide:users" width="14"></iconify-icon></div>
+                           <div class="w-8 h-8 rounded-full border border-black bg-white/5 flex items-center justify-center text-white/80"><iconify-icon icon="lucide:search" width="14"></iconify-icon></div>
+                        </div>
+                        <span class="text-[10px] text-white/20 font-mono uppercase tracking-widest">01 — 11</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Tagline / Mission -->
+        <section class="snap-section" id="section-2">
+            <div class="card-wrapper p-8 md:p-16 justify-center" style="--mouse-x-rel: -232.875px; --mouse-y-rel: -746.5px;">
+                <div class="flex-1 flex flex-col justify-center gap-10 relative z-10 max-w-2xl">
+                    <div class="animate-on-scroll delay-100 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <span class="text-[10px] text-[#FF6B35] mb-4 block tracking-widest uppercase font-semibold">The Mission</span>
+                        <h2 class="md:text-3xl leading-snug text-2xl font-medium text-white tracking-tight">I help businesses find the right leads and keep their data clean.</h2>
+                    </div>
+
+                    <div class="h-px w-full bg-gradient-to-r from-white/10 to-transparent"></div>
+
+                    <div class="grid md:grid-cols-2 gap-8 animate-on-scroll delay-200 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <div>
+                            <span class="text-[10px] text-white/40 mb-2 block uppercase tracking-widest font-semibold">Focus</span>
+                            <p class="text-sm text-white/80">Lead Generation, Prospect Research, &amp; Google Sheets Management.</p>
+                        </div>
+                        <div class="">
+                             <span class="text-[10px] text-white/40 mb-2 block uppercase tracking-widest font-semibold">Goal</span>
+                             <p class="text-sm text-white/80">Delivering verified, actionable data to fill your pipeline.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-auto pt-6 flex justify-end text-[10px] text-white/20 font-mono uppercase tracking-widest">02 — 11</div>
+            </div>
+        </section>
+
+        <!-- 3. Pain Points -->
+        <section class="snap-section" id="section-3">
+            <div class="card-wrapper p-8 md:p-16" style="--mouse-x-rel: -232.875px; --mouse-y-rel: -1446.5px;">
+                <h2 class="text-xl font-semibold tracking-tight mb-8 text-white animate-on-scroll delay-100 [animation:animationIn_0.8s_ease-out_0s_both]">The Difference</h2>
+
+                <div class="grid grid-rows-2 gap-4 flex-1 h-full">
+                    <!-- Without VA -->
+                    <div class="group bg-red-500/5 border border-red-500/10 rounded-xl p-8 flex flex-col justify-center transition-colors hover:bg-red-500/10 animate-on-scroll delay-200 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <div class="flex items-center gap-3 mb-4 text-red-400">
+                            <iconify-icon icon="lucide:x-circle" width="20"></iconify-icon>
+                            <span class="text-sm font-semibold tracking-tight">Without a Data VA</span>
+                        </div>
+                        <ul class="text-xs space-y-3 text-white/60 list-disc list-inside marker:text-red-500/50">
+                            <li class="">Hours wasted searching for contact info manually.</li>
+                            <li class="">CRM becomes a graveyard of duplicates and bad emails.</li>
+                            <li class="">High bounce rates damaging sender reputation.</li>
+                        </ul>
+                    </div>
+
+                    <!-- With VA -->
+                    <div class="group bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-8 flex flex-col justify-center transition-colors hover:bg-emerald-500/10 animate-on-scroll delay-300 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <div class="flex items-center gap-3 mb-4 text-emerald-400">
+                            <iconify-icon icon="lucide:check-circle-2" width="20"></iconify-icon>
+                            <span class="text-sm font-semibold tracking-tight">With Me</span>
+                        </div>
+                        <ul class="text-xs space-y-3 text-white/60 list-disc list-inside marker:text-emerald-500/50">
+                            <li>Clean, verified lists based on your exact ICP.</li>
+                            <li>Pipeline organized and consistently updated.</li>
+                            <li>More time for you to focus on strategy and sales calls.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-auto pt-6 flex justify-end text-[10px] text-white/20 font-mono uppercase tracking-widest">03 — 11</div>
+            </div>
+        </section>
+
+        <!-- 4. Services (Stack) -->
+        <section class="snap-section" id="section-4">
+            <div class="card-wrapper p-8 md:p-16" style="--mouse-x-rel: -232.875px; --mouse-y-rel: -2146.5px;">
+                <div class="flex justify-between items-start mb-8 animate-on-scroll delay-100 [animation:animationIn_0.8s_ease-out_0s_both]">
+                    <h2 class="text-xl font-semibold tracking-tight text-white">Services<br>Offered</h2>
+                    <div class="flex gap-2">
+                        <button id="card-prev" class="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 hover:text-white text-white/50 transition-colors">
+                            <iconify-icon icon="lucide:arrow-left" width="16"></iconify-icon>
+                        </button>
+                        <button id="card-next" class="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 hover:text-white text-white/50 transition-colors">
+                            <iconify-icon icon="lucide:arrow-right" width="16"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="relative w-full h-[400px] card-stack animate-on-scroll delay-300 [animation:animationIn_0.8s_ease-out_0s_both]">
+                    
+                    <!-- Card 1 -->
+                    <div class="stack-item active flex flex-col justify-center p-8 bg-[#0f0f0f]" id="stack-1">
+                        <div class="w-10 h-10 rounded-full bg-[#FF6B35]/10 flex items-center justify-center text-[#FF6B35] mb-6 border border-[#FF6B35]/20">
+                            <iconify-icon icon="lucide:users" width="20"></iconify-icon>
+                        </div>
+                        <div class="text-lg font-medium mb-4 text-white">Lead Generation</div>
+                        <ul class="list-check space-y-3">
+                            <li><iconify-icon icon="lucide:check" class="text-[#FF6B35]" width="14"></iconify-icon> B2B prospect list building</li>
+                            <li><iconify-icon icon="lucide:check" class="text-[#FF6B35]" width="14"></iconify-icon> LinkedIn Sales Navigator mining</li>
+                            <li><iconify-icon icon="lucide:check" class="text-[#FF6B35]" width="14"></iconify-icon> Email verification (ZeroBounce/Hunter)</li>
+                        </ul>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="stack-item next flex flex-col justify-center p-8 bg-[#0f0f0f]" id="stack-2">
+                         <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 mb-6 border border-blue-500/20">
+                            <iconify-icon icon="lucide:database" width="20"></iconify-icon>
+                        </div>
+                        <div class="text-lg font-medium mb-4 text-white">Data Management</div>
+                        <ul class="list-check space-y-3">
+                            <li><iconify-icon icon="lucide:check" class="text-blue-500" width="14"></iconify-icon> Google Sheets organization</li>
+                            <li><iconify-icon icon="lucide:check" class="text-blue-500" width="14"></iconify-icon> Database cleaning &amp; reformatting</li>
+                            <li><iconify-icon icon="lucide:check" class="text-blue-500" width="14"></iconify-icon> CRM updates (HubSpot/Apollo)</li>
+                        </ul>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="stack-item prev flex flex-col justify-center p-8 bg-[#0f0f0f]" id="stack-3">
+                         <div class="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 mb-6 border border-purple-500/20">
+                            <iconify-icon icon="lucide:search" width="20"></iconify-icon>
+                        </div>
+                        <div class="text-lg font-medium mb-4 text-white">Market Research</div>
+                        <ul class="list-check space-y-3">
+                            <li><iconify-icon icon="lucide:check" class="text-purple-500" width="14"></iconify-icon> Competitor analysis</li>
+                            <li><iconify-icon icon="lucide:check" class="text-purple-500" width="14"></iconify-icon> Company profiling</li>
+                            <li><iconify-icon icon="lucide:check" class="text-purple-500" width="14"></iconify-icon> Social media scraping</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-6 flex justify-end text-[10px] text-white/20 font-mono uppercase tracking-widest">04 — 11</div>
+            </div>
+        </section>
+
+        <!-- 5. Tech Stack -->
+        <section class="snap-section" id="section-5">
+            <div class="card-wrapper p-0 justify-center overflow-hidden" style="--mouse-x-rel: -232.875px; --mouse-y-rel: -2846.5px;">
+                <div class="p-16 pb-8 text-center animate-on-scroll delay-100 [animation:animationIn_0.8s_ease-out_0s_both]">
+                    <div class="uppercase text-[10px] text-[#FF6B35] tracking-widest mb-2 font-semibold">Workflow</div>
+                    <h2 class="text-xl font-semibold text-white">Tools of the Trade</h2>
+                </div>
+
+                <div class="flex-1 flex flex-col justify-center gap-12 w-full overflow-hidden relative animate-on-scroll delay-300 [animation:animationIn_0.8s_ease-out_0s_both]">
+                    <div class="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#0d0d0d] to-transparent z-10"></div>
+                    <div class="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#0d0d0d] to-transparent z-10"></div>
+
+                    <div class="flex gap-12 w-max animate-scroll-left hover:[animation-play-state:paused] py-8">
+                        <!-- Logos repeated for seamless loop -->
+                        <div class="flex gap-12 items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-500 hover:opacity-100">
+                            <iconify-icon icon="logos:google-sheets" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:hubspot" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:linkedin-icon" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:apollo-icon" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:google-gmail" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:slack-icon" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:notion-icon" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:airtable" width="32"></iconify-icon>
+                        </div>
+                        <div class="flex gap-12 items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-500 hover:opacity-100">
+                            <iconify-icon icon="logos:google-sheets" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:hubspot" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:linkedin-icon" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:apollo-icon" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:google-gmail" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:slack-icon" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:notion-icon" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:airtable" width="32"></iconify-icon>
+                        </div>
+                         <div class="flex gap-12 items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-500 hover:opacity-100">
+                            <iconify-icon icon="logos:google-sheets" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:hubspot" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:linkedin-icon" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:apollo-icon" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:google-gmail" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:slack-icon" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:notion-icon" width="32"></iconify-icon>
+                            <iconify-icon icon="logos:airtable" width="32"></iconify-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="absolute bottom-6 right-8 text-[10px] text-white/20 font-mono uppercase tracking-widest">05 — 11</div>
+            </div>
+        </section>
+
+        <!-- 6. Work Sample 1 -->
+        <section class="snap-section" id="section-6">
+            <div class="card-wrapper md:p-16 p-8" style="--mouse-x-rel: -232.875px; --mouse-y-rel: -3546.5px;">
+                <div class="mb-8 animate-on-scroll delay-100 [animation:animationIn_0.8s_ease-out_0s_both]">
+                    <span class="text-[10px] text-[#FF6B35] uppercase tracking-widest font-semibold">Portfolio #1</span>
+                    <h3 class="text-xl font-medium tracking-tight mt-2 text-white">Targeted Lead List: NYC Fitness</h3>
+                </div>
+
+                <div class="flex-1 flex flex-col gap-6">
+                    <button onclick="openLightbox('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/c78bd7b0-e399-4c7d-a097-7cb2e9ffaa83_3840w.jpg')" class="group relative w-full h-48 bg-white/5 border border-white/10 rounded-lg overflow-hidden cursor-zoom-in animate-on-scroll delay-200 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/c78bd7b0-e399-4c7d-a097-7cb2e9ffaa83_3840w.jpg" class="group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 bg-center opacity-60 w-full h-full object-cover" alt="Spreadsheet Screenshot">
+                        <div class="flex group-hover:opacity-100 transition-opacity bg-center bg-black/40 opacity-0 absolute top-0 right-0 bottom-0 left-0 items-center justify-center">
+                            <div class="flex gap-2 bg-black/80 border-white/20 border rounded-full pt-1.5 pr-3 pb-1.5 pl-3 backdrop-blur-sm items-center">
+                                <iconify-icon icon="lucide:maximize-2" class="text-white" width="12"></iconify-icon>
+                                <span class="text-[10px] uppercase tracking-wide text-white">Expand</span>
+                            </div>
+                        </div>
+                    </button>
+
+                    <div class="bg-white/5 rounded-xl p-6 border border-white/5 animate-on-scroll delay-300 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <span class="text-xs font-semibold text-white/90 block mb-4 uppercase tracking-wide">Process</span>
+                        <ul class="text-xs text-white/60 space-y-3">
+                            <li class="flex gap-3"><span class="text-[#FF6B35]">•</span> Identified coaches via Maps &amp; Socials.</li>
+                            <li class="flex gap-3"><span class="text-[#FF6B35]">•</span> Scraped contact info &amp; verified emails.</li>
+                            <li class="flex gap-3"><span class="text-[#FF6B35]">•</span> Formatted data for instant cold email upload.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-auto pt-6 flex justify-end text-[10px] text-white/20 font-mono uppercase tracking-widest">06 — 11</div>
+            </div>
+        </section>
+
+        <!-- 7. Work Sample 2 -->
+        <section class="snap-section" id="section-7">
+             <div class="card-wrapper p-8 md:p-16" style="--mouse-x-rel: -232.875px; --mouse-y-rel: -4246.5px;">
+                <div class="mb-8 animate-on-scroll delay-100 [animation:animationIn_0.8s_ease-out_0s_both]">
+                    <span class="text-[10px] text-[#FF6B35] uppercase tracking-widest font-semibold">Portfolio #2</span>
+                    <h3 class="text-xl font-medium tracking-tight mt-2 text-white">B2B Real Estate Prospect List</h3>
+                </div>
+
+                <div class="flex-1 flex flex-col gap-6">
+                    <button onclick="openLightbox('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/1f00e7de-d73a-42c5-9a32-706e61b81a0f_800w.jpg')" class="group relative w-full h-48 bg-white/5 border border-white/10 rounded-lg overflow-hidden cursor-zoom-in animate-on-scroll delay-200 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/1f00e7de-d73a-42c5-9a32-706e61b81a0f_3840w.jpg" class="group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 opacity-60 w-full h-full object-cover" alt="CRM Screenshot">
+                         <div class="flex group-hover:opacity-100 transition-opacity bg-center bg-black/40 opacity-0 absolute top-0 right-0 bottom-0 left-0 items-center justify-center">
+                            <div class="bg-black/80 px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/20 backdrop-blur-sm">
+                                <iconify-icon icon="lucide:maximize-2" class="text-white" width="12"></iconify-icon>
+                                <span class="text-[10px] uppercase tracking-wide text-white">Expand</span>
+                            </div>
+                        </div>
+                    </button>
+
+                    <div class="bg-white/5 rounded-xl p-6 border border-white/5 animate-on-scroll delay-300 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <span class="text-xs font-semibold text-white/90 block mb-4 uppercase tracking-wide">Process</span>
+                        <ul class="text-xs text-white/60 space-y-3">
+                            <li class="flex gap-3"><span class="text-[#FF6B35]">•</span> Researched agency owners &amp; decision makers.</li>
+                            <li class="flex gap-3"><span class="text-[#FF6B35]">•</span> Enriched data with LinkedIn profiles.</li>
+                            <li class="flex gap-3"><span class="text-[#FF6B35]">•</span> Cleaned duplicates from client's CRM.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-auto pt-6 flex justify-end text-[10px] text-white/20 font-mono uppercase tracking-widest">07 — 11</div>
+            </div>
+        </section>
+
+        <!-- 8. Work Sample 3 -->
+        <section class="snap-section" id="section-8">
+             <div class="card-wrapper p-8 md:p-16" style="--mouse-x-rel: -232.875px; --mouse-y-rel: -4946.5px;">
+                <div class="mb-8 animate-on-scroll delay-100 [animation:animationIn_0.8s_ease-out_0s_both]">
+                    <span class="text-[10px] text-[#FF6B35] uppercase tracking-widest font-semibold">Portfolio #3</span>
+                    <h3 class="text-xl font-medium tracking-tight mt-2 text-white">Market Research Report</h3>
+                </div>
+
+                <div class="flex-1 flex flex-col gap-6">
+                    <button onclick="openLightbox('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/faf2ecf9-4413-442f-8494-bcf677e191c7_3840w.png')" class="group relative w-full h-48 bg-white/5 border border-white/10 rounded-lg overflow-hidden cursor-zoom-in animate-on-scroll delay-200 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/faf2ecf9-4413-442f-8494-bcf677e191c7_3840w.png" class="group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 opacity-60 w-full h-full object-cover" alt="Data Report Screenshot">
+                         <div class="flex group-hover:opacity-100 transition-opacity bg-black/40 opacity-0 absolute top-0 right-0 bottom-0 left-0 items-center justify-center">
+                            <div class="bg-black/80 px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/20 backdrop-blur-sm">
+                                <iconify-icon icon="lucide:maximize-2" class="text-white" width="12"></iconify-icon>
+                                <span class="text-[10px] uppercase tracking-wide text-white">Expand</span>
+                            </div>
+                        </div>
+                    </button>
+
+                    <div class="bg-white/5 rounded-xl p-6 border border-white/5 animate-on-scroll delay-300 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <span class="text-xs font-semibold text-white/90 block mb-4 uppercase tracking-wide">Process</span>
+                        <ul class="text-xs text-white/60 space-y-3">
+                            <li class="flex gap-3"><span class="text-[#FF6B35]">•</span> Investigated local competitors' pricing &amp; offers.</li>
+                            <li class="flex gap-3"><span class="text-[#FF6B35]">•</span> Summarized insights into actionable sheets.</li>
+                            <li class="flex gap-3"><span class="text-[#FF6B35]">•</span> Provided raw data for marketing strategy.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-auto pt-6 flex justify-end text-[10px] text-white/20 font-mono uppercase tracking-widest">08 — 11</div>
+            </div>
+        </section>
+
+        <!-- 9. About Me -->
+        <section class="snap-section" id="section-9">
+            <div class="card-wrapper p-8 md:p-16" style="--mouse-x-rel: -232.875px; --mouse-y-rel: -5646.5px;">
+                <h2 class="text-xl font-semibold tracking-tight mb-8 text-white animate-on-scroll delay-100 [animation:animationIn_0.8s_ease-out_0s_both]">About Me</h2>
+
+                <div class="flex-1 flex flex-col gap-8">
+                    <div class="flex items-center gap-5 animate-on-scroll delay-200 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <div class="relative w-20 h-20 rounded-full bg-neutral-800 border-2 border-[#FF6B35]/20 overflow-hidden shrink-0 group">
+                            <!-- Placeholder - User to replace -->
+                            <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/09e388c2-b442-43f4-b2f5-0fd3b0fd2241_320w.jpg" alt="Nikko Paulo Yu" class="group-hover:grayscale-0 transition-all duration-500 w-full h-full object-cover grayscale">
+                        </div>
+                        <div class="">
+                            <h3 class="text-lg font-medium text-white">Nikko Paulo Yu</h3>
+                            <p class="text-xs text-white/40 mt-1 font-mono">Virtual Assistant &amp; Data Specialist</p>
+                        </div>
+                    </div>
+
+                    <div class="animate-on-scroll delay-300 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <p class="text-sm text-white/70 leading-relaxed mb-4">
+                            I specialize in <span class="text-white font-medium">unclogging your operations</span>. I take the tedious tasks of research and data entry off your hands so you can operate at your highest level.
+                        </p>
+                    </div>
+
+                    <div class="bg-white/5 border border-white/10 rounded-xl p-6 animate-on-scroll delay-400 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <span class="text-[10px] text-[#FF6B35] uppercase tracking-widest block mb-4 font-semibold">Core Values</span>
+                        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-white/60">
+                            <li class="flex items-center gap-2"><iconify-icon icon="lucide:check-circle" class="text-white/20"></iconify-icon> Accuracy First</li>
+                            <li class="flex items-center gap-2"><iconify-icon icon="lucide:check-circle" class="text-white/20"></iconify-icon> Clean Organization</li>
+                            <li class="flex items-center gap-2"><iconify-icon icon="lucide:check-circle" class="text-white/20"></iconify-icon> Fast Turnaround</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-6 flex justify-end text-[10px] text-white/20 font-mono uppercase tracking-widest">09 — 11</div>
+            </div>
+        </section>
+
+        <!-- 10. Certifications -->
+        <section class="snap-section" id="section-10">
+            <div class="card-wrapper p-8 md:p-16" style="--mouse-x-rel: -232.875px; --mouse-y-rel: -6346.5px;">
+                <h2 class="text-xl font-semibold tracking-tight mb-8 text-white animate-on-scroll delay-100 [animation:animationIn_0.8s_ease-out_0s_both]">Certifications</h2>
+
+                <div class="flex-1 flex flex-col gap-4">
+                    <!-- Cert 1 -->
+                    <div class="group p-6 border border-white/10 rounded-xl bg-gradient-to-br from-white/5 to-transparent hover:border-white/20 transition-all animate-on-scroll delay-200 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <div class="flex items-center justify-between mb-3">
+                            <iconify-icon icon="lucide:award" class="text-[#FF6B35]" width="24"></iconify-icon>
+                        </div>
+                        <h4 class="text-sm font-semibold mb-1 text-white">General VA Mastery</h4>
+                        <p class="text-[10px] text-white/40 uppercase tracking-wide">Your Best Virtual Assistant</p>
+                        <p class="text-xs text-white/60 mt-3 leading-relaxed border-t border-white/5 pt-3">Comprehensive training in Lead Generation, Admin Support, Cold Outreach, and CRM Management.</p>
+                    </div>
+
+                    <!-- Cert 2 -->
+                    <div class="group p-6 border border-white/10 rounded-xl bg-gradient-to-br from-white/5 to-transparent hover:border-white/20 transition-all animate-on-scroll delay-300 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <div class="flex items-center justify-between mb-3">
+                            <iconify-icon icon="lucide:cpu" class="text-blue-400" width="24"></iconify-icon>
+                            <span class="text-[9px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/20 font-medium">IN PROGRESS</span>
+                        </div>
+                        <h4 class="text-sm font-semibold mb-1 text-white">AI Automation Training</h4>
+                        <p class="text-[10px] text-white/40 uppercase tracking-wide">AI &amp; Automation Masters PH</p>
+                        <p class="text-xs text-white/60 mt-3 leading-relaxed border-t border-white/5 pt-3">Advanced workflows using AI tools to automate data entry and research tasks.</p>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-6 flex justify-end text-[10px] text-white/20 font-mono uppercase tracking-widest">10 — 11</div>
+            </div>
+        </section>
+
+        <!-- 11. Contact / CTA -->
+        <section class="snap-section" id="section-11">
+            <div class="card-wrapper p-8 md:p-16 items-center justify-center text-center overflow-hidden" style="--mouse-x-rel: -232.875px; --mouse-y-rel: -7046.5px;">
+                
+                <!-- Glow Effect -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-[#FF6B35] opacity-10 blur-[120px] rounded-full pointer-events-none"></div>
+
+                <div class="relative z-10 flex flex-col items-center gap-8 w-full max-w-sm">
+                    <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10 animate-on-scroll delay-100 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <iconify-icon icon="lucide:mail" width="32" class="text-[#FF6B35]"></iconify-icon>
+                    </div>
+                    
+                    <h2 class="text-3xl md:text-4xl font-semibold tracking-tighter animate-on-scroll delay-200 [animation:animationIn_0.8s_ease-out_0s_both]">
+                        <span class="text-white">Want clean leads</span>
+                        <span class="text-[#FF6B35]">or organized data?</span>
+                    </h2>
+
+                    <p class="leading-relaxed animate-on-scroll delay-300 [animation:animationIn_0.8s_ease-out_0s_both] text-sm text-white/60">Let's Work Together!</p>
+
+                    <div class="flex flex-col animate-on-scroll [animation:animationIn_0.8s_ease-out_0.4s_both] w-full mt-4 gap-x-3 gap-y-3">
+    <style>
+        @keyframes beam-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
+    <a href="mailto:yunikkopaulo@gmail.com" class="btn-beam group hover:scale-[1.02] active:scale-95 transition-transform flex items-center justify-center gap-2 text-sm font-semibold text-black bg-white w-full rounded-full pt-3.5 pr-6 pb-3.5 pl-6 relative overflow-hidden">
+        <iconify-icon icon="lucide:send" width="16" class="relative z-10"></iconify-icon>
+        <span class="relative z-10">yunikkopaulo@gmail.com</span>
+        <div class="absolute inset-0 rounded-full overflow-hidden pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; padding: 1.5px;">
+            <div class="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0_300deg,#FF6B35_360deg)]" style="animation: beam-spin 3s linear infinite;"></div>
+        </div>
+    </a>
+
+    <a href="https://wa.me/639466091553" class="btn-beam group hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm font-medium text-white bg-white/5 w-full border-white/10 border rounded-full pt-3.5 pr-6 pb-3.5 pl-6 relative overflow-hidden">
+        <iconify-icon icon="lucide:phone" width="16" class="relative z-10"></iconify-icon>
+        <span class="relative z-10">+63 946 609 1553</span>
+        <div class="absolute inset-0 rounded-full overflow-hidden pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; padding: 1.5px;">
+            <div class="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0_300deg,#FF6B35_360deg)]" style="animation: beam-spin 3s linear infinite;"></div>
+        </div>
+    </a>
+</div>
+                </div>
+
+                <div class="absolute bottom-6 w-full px-12 flex justify-between text-[10px] text-white/20 font-mono uppercase tracking-widest">
+                    <span class="">Nikko Paulo Yu</span>
+                    <span>11 — 11</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        /* Flashlight Effect */
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX + 'px';
+            const y = e.clientY + 'px';
+            document.documentElement.style.setProperty('--mouse-x', x);
+            document.documentElement.style.setProperty('--mouse-y', y);
+            
+            document.querySelectorAll('.card-wrapper').forEach(card => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--mouse-x-rel', (e.clientX - rect.left) + 'px');
+                card.style.setProperty('--mouse-y-rel', (e.clientY - rect.top) + 'px');
+            });
+        });
+
+        /* Lightbox Functions */
+        function openLightbox(src) {
+            const lb = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.src = src;
+            lb.classList.remove('hidden');
+            setTimeout(() => lb.classList.add('open'), 10);
+        }
+
+        function closeLightbox() {
+            const lb = document.getElementById('lightbox');
+            lb.classList.remove('open');
+            setTimeout(() => lb.classList.add('hidden'), 300);
+        }
+
+        /* Card Rotator (Services Section) */
+        const cards = [document.getElementById('stack-1'), document.getElementById('stack-2'), document.getElementById('stack-3')];
+        let activeIndex = 0;
+
+        function updateCards() {
+            cards.forEach((card, index) => {
+                card.className = 'stack-item flex flex-col justify-center p-8 bg-[#0f0f0f]'; 
+                if (index === activeIndex) {
+                    card.classList.add('active');
+                } else if (index === (activeIndex + 1) % 3) {
+                    card.classList.add('next');
+                } else {
+                    card.classList.add('prev');
+                }
+            });
+        }
+
+        document.getElementById('card-next').addEventListener('click', () => {
+            activeIndex = (activeIndex + 1) % 3;
+            updateCards();
+        });
+
+        document.getElementById('card-prev').addEventListener('click', () => {
+            activeIndex = (activeIndex - 1 + 3) % 3;
+            updateCards();
+        });
+
+        // Auto rotate interval
+        setInterval(() => {
+            const section = document.getElementById('section-4');
+            const rect = section.getBoundingClientRect();
+            if(rect.top >= -window.innerHeight/2 && rect.bottom <= window.innerHeight*1.5) {
+               activeIndex = (activeIndex + 1) % 3;
+               updateCards(); 
+            }
+        }, 5000);
+
+        /* Pagination Dots & Navigation */
+        const sections = document.querySelectorAll('.snap-section');
+        const dotsContainer = document.getElementById('pagination-dots');
+        
+        // Clear any existing dots first to fix issue with duplicates/incorrect count
+        dotsContainer.innerHTML = '';
+        
+        sections.forEach((_, idx) => {
+            const dot = document.createElement('div');
+            dot.className = `w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === 0 ? 'bg-white scale-125' : 'bg-white/20'}`;
+            dotsContainer.appendChild(dot);
+        });
+
+        const dots = dotsContainer.querySelectorAll('div');
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    const id = entry.target.id;
+                    const index = parseInt(id.split('-')[1]) - 1;
+                    dots.forEach((dot, i) => {
+                        dot.className = `w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === index ? 'bg-white scale-125' : 'bg-white/20'}`;
+                    });
+                }
+            });
+        }, { threshold: 0.5 });
+
+        sections.forEach(sec => sectionObserver.observe(sec));
+
+        function nextSlide() {
+            const container = document.getElementById('main-container');
+            const h = window.innerHeight;
+            const currentScroll = container.scrollTop;
+            const target = Math.ceil((currentScroll + 10) / h) * h;
+            container.scrollTo({ top: target, behavior: 'smooth' });
+        }
+        function prevSlide() {
+            const container = document.getElementById('main-container');
+            const h = window.innerHeight;
+            const currentScroll = container.scrollTop;
+            const target = Math.floor((currentScroll - 10) / h) * h;
+            container.scrollTo({ top: target, behavior: 'smooth' });
+        }
+    </script>
+
+
+</body></html>
